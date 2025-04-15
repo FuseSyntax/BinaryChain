@@ -1,0 +1,23 @@
+binarychain/
+├── components/
+│   ├── Footer.tsx           // Footer component
+│   ├── Header.tsx           // Navigation header for your app
+│   ├── layout.tsx           // Layout component for consistent page design
+│   ├── MiningInfo.tsx       // Component to show mining/blockchain info
+│   └── TransactionList.tsx  // Component to display a list of transactions
+├── lib/
+│   ├── blockchain.ts        // Blockchain class
+│   ├── block.ts             // Block class
+│   ├── cryptoUtil.ts        // Utility functions for hashing & signature verification
+│   ├── transaction.ts       // Transaction class
+│   └── wallet.ts            // Wallet class (key generation, signing)
+├── pages/
+│   ├── api/
+│   │   ├── blockchain.ts    // API route for blockchain interactions
+│   │   └── transaction.ts   // API route to create or broadcast transactions
+│   ├── index.tsx            // Home page (display blockchain status)
+│   ├── mine.tsx             // Page to trigger mining
+│   ├── transactions.tsx     // Page to create/view transactions
+│   └── _app.tsx             // Custom App component for global styles/layout
+├── package.json
+└── README.md
