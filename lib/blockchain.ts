@@ -79,3 +79,5 @@ export class Blockchain {
     return true;
   }
 }
+
+export { Block };

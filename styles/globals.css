@@ -3,3 +3,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* In your CSS file */
+.grid-background {
+    background-image: url('/grid.svg');
+    color: #334155;
+    /* Change this color to match your theme */
+    background-size: 40px 40px;
+    /* Adjust grid size */
+}
+
+.grid-animated {
+    animation: grid-move 20s linear infinite;
+}
+
+@keyframes grid-move {
+    from {
+        background-position: 0 0
+    }
+
+    to {
+        background-position: 40px 40px
+    }
+}
+
+

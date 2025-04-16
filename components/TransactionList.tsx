@@ -1,24 +1,31 @@
 // components/TransactionList.tsx
-import React from 'react';
-import { Transaction } from '../lib/transaction';
+import { ArrowUpIcon } from '@heroicons/react/24/outline';
 
-interface TransactionListProps {
-  transactions: Transaction[];
-}
-
-const TransactionList: React.FC<TransactionListProps> = ({ transactions }) => {
+const TransactionList = ({ transactions }) => {
   return (
-    <div className="mt-4">
-      <h2 className="text-xl font-bold mb-2">Transactions</h2>
-      <ul>
-        {transactions.map((tx, index) => (
-          <li key={index} className="border p-2 my-1">
-            <p>From: {tx.fromAddress || 'System'}</p>
-            <p>To: {tx.toAddress}</p>
-            <p>Amount: {tx.amount}</p>
-          </li>
-        ))}
-      </ul>
+    <div className="space-y-4">
+      <h3 className="text-xl font-semibold text-white mb-4">Transaction Pool</h3>
+      {transactions.map((tx, index) => (
+        <div key={index} className="p-4 bg-gray-800 rounded-lg border border-gray-700 hover:border-emerald-400 transition-colors">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-emerald-400/10 rounded-lg">
+                <ArrowUpIcon className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-400">From {tx.fromAddress?.slice(0, 12)}...</p>
+                <p className="text-sm text-gray-400">To {tx.toAddress?.slice(0, 12)}...</p>
+              </div>
+            </div>
+            <p className="text-lg font-semibold text-emerald-400">{tx.amount}</p>
+          </div>
+          {tx.signature && (
+            <p className="text-xs text-gray-500 break-all mt-2">
+              Signature: {tx.signature.slice(0, 24)}...
+            </p>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
