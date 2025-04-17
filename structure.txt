@@ -1,25 +1,37 @@
 binarychain/
 ├── components/
-│   ├── Footer.tsx                            // Footer component
-│   ├── BlockchainVisualization.tsx           // Blockchain Visualization component
-│   ├── Header.tsx                            // Navigation header for your app
-│   ├── layout.tsx                            // Layout component for consistent page design
-│   ├── MiningInfo.tsx                        // Component to show mining/blockchain info
-│   └── TransactionList.tsx                   // Component to display a list of transactions
+│   ├── Footer.tsx
+│   ├── BlockchainVisualization.tsx
+│   ├── Header.tsx
+│   ├── Layout.tsx
+│   ├── MiningInfo.tsx
+│   └── TransactionList.tsx
 ├── lib/
-│   ├── blockchain.ts                         // Blockchain class
-│   ├── block.ts                              // Block class
-│   ├── cryptoUtil.ts                         // Utility functions for hashing & signature verification
-│   ├── transaction.ts                        // Transaction class
-│   └── wallet.ts                             // Wallet class (key generation, signing)
+│   ├── blockchain.ts
+│   ├── block.ts
+│   ├── cryptoUtil.ts
+│   ├── transaction.ts
+│   ├── wallet.ts
+│   ├── blockchainInstance.ts
+│   ├── walletPersistence.ts  // New: Manages persistent wallets
+│   └── prisma.ts           // New: Prisma client setup (if using persistent storage)
 ├── pages/
 │   ├── api/
-│   │   ├── blockchain.ts                     // API route for blockchain interactions
-│   │   └── transaction.ts                    // API route to create or broadcast transactions
-│   ├── index.tsx                             // display blockchain status
-│   ├── status.tsx                             // Home page
-│   ├── mine.tsx                              // Page to trigger mining
-│   ├── transactions.tsx                      // Page to create/view transactions
-│   └── _app.tsx                              // Custom App component for global styles/layout
+│   │   ├── blockchain/
+│   │   │   ├── index.ts    // Handles /api/blockchain (e.g., mining, chain retrieval)
+│   │   │   └── receive.ts  // Handles /api/blockchain/receive
+│   │   ├── peers/
+│   │   │   ├── add.ts     // New: Handles /api/peers/add
+│   │   │   └── list.ts    // New: Handles /api/peers/list
+│   │   └── transaction.ts // Handles /api/transaction
+│   ├── index.tsx
+│   ├── status.tsx
+│   ├── mine.tsx
+│   ├── transactions.tsx
+│   ├── peers.tsx          // New: UI for managing peers
+│   └── _app.tsx
+├── prisma/
+│   └── schema.prisma       // Prisma schema for database
+├── .env                   // Environment variables (e.g., DATABASE_URL)
 ├── package.json
 └── README.md
