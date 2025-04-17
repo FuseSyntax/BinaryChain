@@ -1,7 +1,5 @@
-// lib/wallet.ts
 import { ec } from './cryptoUtil';
 import { Transaction } from './transaction';
-import crypto from 'crypto';
 
 export class Wallet {
   public keyPair: elliptic.ec.KeyPair;
@@ -14,14 +12,17 @@ export class Wallet {
     this.publicKey = this.keyPair.getPublic('hex');
   }
 
-  signTransaction(transaction: Transaction): void {
-    const dataHash = this.calculateTransactionHash(transaction);
-    const signature = this.keyPair.sign(dataHash, 'base64');
-    transaction.signature = signature.toDER('hex');
+  static fromPrivateKey(privateKey: string): Wallet {
+    const wallet = new Wallet();
+    wallet.keyPair = ec.keyFromPrivate(privateKey, 'hex');
+    wallet.privateKey = privateKey;
+    wallet.publicKey = wallet.keyPair.getPublic('hex');
+    return wallet;
   }
 
-  calculateTransactionHash(transaction: Transaction): string {
-    const data = `${transaction.fromAddress}${transaction.toAddress}${transaction.amount}`;
-    return crypto.createHash('sha256').update(data).digest('hex');
+  signTransaction(transaction: Transaction): void {
+    const hashTx = transaction.calculateHash();
+    const signature = this.keyPair.sign(hashTx, 'base64');
+    transaction.signature = signature.toDER('hex');
   }
 }

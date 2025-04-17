@@ -1,31 +1,60 @@
-// pages/transactions.tsx
+'use client';
+
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowUpIcon, WalletIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
+import { Transaction } from '../lib/transaction';
+import { getOrCreateWallet } from '../lib/walletPersistence';
 
 const Transactions = () => {
-  const [fromAddress, setFromAddress] = useState('');
+  const [wallet] = useState(() => getOrCreateWallet());
   const [toAddress, setToAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [message, setMessage] = useState('');
+  const [pendingTransactions, setPendingTransactions] = useState<Transaction[]>([]);
+
+  useEffect(() => {
+    const fetchPendingTransactions = async () => {
+      const res = await fetch('/api/transaction');
+      const data = await res.json();
+      setPendingTransactions(data.transactions || []);
+    };
+    fetchPendingTransactions();
+  }, []);
 
   const submitTransaction = async () => {
+    const tx = new Transaction(wallet.publicKey, toAddress, parseFloat(amount));
+    wallet.signTransaction(tx);
+
     const res = await fetch('/api/transaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fromAddress, toAddress, amount: parseFloat(amount) }),
+      body: JSON.stringify({
+        fromAddress: tx.fromAddress,
+        toAddress: tx.toAddress,
+        amount: tx.amount,
+        signature: tx.signature,
+      }),
     });
+
     const data = await res.json();
-    setMessage(data.error ? `Error: ${data.error}` : 'Transaction added to mempool!');
+    if (!res.ok) {
+      setMessage(`Error: ${data.error}`);
+    } else {
+      setMessage('Transaction added to mempool!');
+      const res = await fetch('/api/transaction');
+      const updatedData = await res.json();
+      setPendingTransactions(updatedData.transactions || []);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-900 p-8">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="bg-gray-800 rounded-2xl p-8 border border-gray-700 shadow-2xl"
+          className="bg-gray-800 rounded-2xl p-8 border border-gray-700 shadow-2xl mb-8"
         >
           <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
             New Transaction
@@ -38,10 +67,9 @@ const Transactions = () => {
                 <WalletIcon className="w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  value={fromAddress}
-                  onChange={(e) => setFromAddress(e.target.value)}
-                  className="bg-transparent w-full text-gray-200 placeholder-gray-500 focus:outline-none"
-                  placeholder="0x..."
+                  value={wallet.publicKey}
+                  readOnly
+                  className="bg-transparent w-full text-gray-200"
                 />
               </div>
             </div>
@@ -84,11 +112,13 @@ const Transactions = () => {
             </motion.button>
 
             {message && (
-              <div className={`p-4 rounded-lg ${
-                message.startsWith('Error') 
-                  ? 'bg-red-400/10 border-red-400/30' 
-                  : 'bg-emerald-400/10 border-emerald-400/30'
-              }`}>
+              <div
+                className={`p-4 rounded-lg ${
+                  message.startsWith('Error')
+                    ? 'bg-red-400/10 border-red-400/30'
+                    : 'bg-emerald-400/10 border-emerald-400/30'
+                }`}
+              >
                 <p className={message.startsWith('Error') ? 'text-red-400' : 'text-emerald-400'}>
                   {message}
                 </p>
@@ -96,6 +126,23 @@ const Transactions = () => {
             )}
           </div>
         </motion.div>
+
+        <div>
+          <h2 className="text-2xl font-bold mb-4 text-white">Pending Transactions</h2>
+          {pendingTransactions.length === 0 ? (
+            <p className="text-gray-400">No pending transactions</p>
+          ) : (
+            <ul className="space-y-4">
+              {pendingTransactions.map((tx, index) => (
+                <li key={index} className="p-4 bg-gray-700 rounded-lg">
+                  <p>From: {tx.fromAddress}</p>
+                  <p>To: {tx.toAddress}</p>
+                  <p>Amount: {tx.amount}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );

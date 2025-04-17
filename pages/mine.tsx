@@ -1,17 +1,19 @@
-// pages/mine.tsx
+'use client';
+
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { CpuChipIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { getOrCreateWallet } from '../lib/walletPersistence';
 
 const Mine = () => {
-  const [rewardAddress, setRewardAddress] = useState('');
+  const [wallet] = useState(() => getOrCreateWallet());
   const [message, setMessage] = useState('');
 
   const mineBlock = async () => {
     const res = await fetch('/api/blockchain', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ miningRewardAddress: rewardAddress }),
+      body: JSON.stringify({ miningRewardAddress: wallet.publicKey }),
     });
     const data = await res.json();
     setMessage(data.message || 'Block mined successfully!');
@@ -36,10 +38,9 @@ const Mine = () => {
                 <SparklesIcon className="w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  value={rewardAddress}
-                  onChange={(e) => setRewardAddress(e.target.value)}
-                  className="bg-transparent w-full text-gray-200 placeholder-gray-500 focus:outline-none"
-                  placeholder="0x..."
+                  value={wallet.publicKey}
+                  readOnly
+                  className="bg-transparent w-full text-gray-200"
                 />
               </div>
             </div>
