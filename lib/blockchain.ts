@@ -1,5 +1,6 @@
 import { Block } from './block';
 import { Transaction } from './transaction';
+import { SmartContract, SimpleContract } from './contract';
 
 export class Blockchain {
   public chain: Block[];
@@ -7,6 +8,7 @@ export class Blockchain {
   public pendingTransactions: Transaction[];
   public miningReward: number;
   public peers: Set<string>;
+  private contracts: Map<string, SmartContract>;
 
   constructor() {
     this.chain = [this.createGenesisBlock()];
@@ -14,6 +16,8 @@ export class Blockchain {
     this.pendingTransactions = [];
     this.miningReward = 50;
     this.peers = new Set();
+    this.contracts = new Map();
+    this.contracts.set('restrictAmount', new SimpleContract('restrictAmount', 'restrictAmount'));
   }
 
   createGenesisBlock(): Block {
@@ -26,10 +30,55 @@ export class Blockchain {
 
   addPeer(peerUrl: string): void {
     this.peers.add(peerUrl);
+    this.discoverPeers(peerUrl);
   }
 
   getPeers(): string[] {
     return Array.from(this.peers);
+  }
+
+  async discoverPeers(peerUrl: string): Promise<void> {
+    try {
+      const res = await fetch(`${peerUrl}/api/peers/list`);
+      const data = await res.json();
+      for (const peer of data.peers) {
+        if (!this.peers.has(peer) && peer !== window.location.origin) {
+          this.peers.add(peer);
+        }
+      }
+    } catch (error) {
+      console.error('Error discovering peers:', error);
+    }
+  }
+
+  async syncChain(): Promise<void> {
+    for (const peer of this.peers) {
+      try {
+        const res = await fetch(`${peer}/api/blockchain`);
+        const data = await res.json();
+        const peerChain = data.chain;
+        if (peerChain.length > this.chain.length && this.isValidChain(peerChain)) {
+          this.chain = peerChain;
+          console.log(`Synchronized with longer chain from ${peer}`);
+        }
+      } catch (error) {
+        console.error('Error syncing with peer:', peer, error);
+      }
+    }
+  }
+
+  isValidChain(chain: Block[]): boolean {
+    for (let i = 1; i < chain.length; i++) {
+      const currentBlock = chain[i];
+      const previousBlock = chain[i - 1];
+      if (currentBlock.hash !== currentBlock.calculateBlockHash()) {
+        return false;
+      }
+      if (currentBlock.previousHash !== previousBlock.hash) {
+        return false;
+      }
+    }
+    return true;
   }
 
   async broadcastBlock(block: Block): Promise<void> {
@@ -64,6 +113,7 @@ export class Blockchain {
     this.pendingTransactions = [];
 
     this.broadcastBlock(block);
+    this.syncChain();
   }
 
   addTransaction(transaction: Transaction): void {
@@ -83,6 +133,11 @@ export class Blockchain {
       throw new Error('Invalid transaction signature');
     }
 
+    const contract = this.contracts.get('restrictAmount');
+    if (contract && !contract.execute(tx)) {
+      throw new Error('Transaction rejected by smart contract: Amount must be greater than 0');
+    }
+
     this.pendingTransactions.push(tx);
   }
 
@@ -100,6 +155,7 @@ export class Blockchain {
     }
     return balance;
   }
+  
 
   receiveBlock(newBlock: Block): boolean {
     const latestBlock = this.getLatestBlock();

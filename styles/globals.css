@@ -3,7 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* In your CSS file */
+
+body{
+    background: #111827;
+}
+
 .grid-background {
     background-image: url('/grid.svg');
     color: #334155;

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <defs>
+    <linearGradient id="consensusGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34D399;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path
+    d="M11.99 2C6.47 2 2 6.47 2 12s4.47 10 9.99 10C17.51 22 22 17.53 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm4.18-12.24l-1.06 1.06-1.41-1.41-2.83 2.83 1.41 1.41-1.06 1.06 2.83-2.83 1.41 1.41 1.06-1.06-2.83-2.83 1.41-1.41 1.06 1.06-1.41 1.41 2.83 2.83 1.06-1.06-1.41-1.41-2.83 2.83-1.41-1.41-1.06 1.06 2.83-2.83-1.41-1.41z"
+    fill="url(#consensusGradient)"
+  />
+</svg>

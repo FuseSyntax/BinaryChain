@@ -32,7 +32,7 @@ const Status = () => {
   useEffect(() => { fetchChain(); }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
+    <div className="min-h-screen bg-gray-900 md:p-8 md:mt-20 mt-16 mb-10">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0 }}

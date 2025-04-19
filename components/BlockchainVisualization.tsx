@@ -30,7 +30,7 @@ const BlockchainVisualization = ({ blockchain }: { blockchain: Blockchain }) => 
   };
 
   return (
-    <div className="relative min-h-[400px] w-full overflow-hidden p-8">
+    <div className="relative md:min-h-[400px] w-full overflow-hidden p-8">
       {/* Animated connection lines */}
       <div className="absolute left-1/2 top-0 h-full w-1 bg-gradient-to-b from-emerald-400/20 to-blue-400/20" />
       

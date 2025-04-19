@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <path
+    d="M10 10 H90 M10 20 H90 M10 30 H50 M60 30 H90 M10 40 H30 M40 40 H90 M10 50 H90 M10 60 H50 M60 60 H90 M10 70 H30 M40 70 H90 M10 80 H90 M10 90 H90 M20 10 V90 M30 10 V30 M40 40 V90 M50 10 V60 M60 30 V90 M70 10 V70 M80 10 V90"
+    stroke="#34D399"
+    stroke-width="1"
+    stroke-linecap="round"
+  />
+</svg>

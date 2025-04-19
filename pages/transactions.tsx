@@ -23,40 +23,49 @@ const Transactions = () => {
   }, []);
 
   const submitTransaction = async () => {
+    if (!toAddress || !amount || parseFloat(amount) <= 0) {
+      setMessage('Please provide a valid recipient address and amount greater than 0');
+      return;
+    }
+
     const tx = new Transaction(wallet.publicKey, toAddress, parseFloat(amount));
     wallet.signTransaction(tx);
 
-    const res = await fetch('/api/transaction', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fromAddress: tx.fromAddress,
-        toAddress: tx.toAddress,
-        amount: tx.amount,
-        signature: tx.signature,
-      }),
-    });
+    try {
+      const res = await fetch('/api/transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromAddress: tx.fromAddress,
+          toAddress: tx.toAddress,
+          amount: tx.amount,
+          signature: tx.signature,
+        }),
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      setMessage(`Error: ${data.error}`);
-    } else {
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Transaction failed');
+      }
+
       setMessage('Transaction added to mempool!');
-      const res = await fetch('/api/transaction');
-      const updatedData = await res.json();
+      const updatedRes = await fetch('/api/transaction');
+      const updatedData = await updatedRes.json();
       setPendingTransactions(updatedData.transactions || []);
+    } catch (error) {
+      setMessage(`Error: ${error.message}`);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
+    <div className="md:min-h-screen bg-gray-900 md:p-8 md:mt-20 mx-4 mt-24 mb-10">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="bg-gray-800 rounded-2xl p-8 border border-gray-700 shadow-2xl mb-8"
+          className="bg-gray-800 rounded-2xl md:p-8 p-4 border border-gray-700 shadow-2xl mb-8"
         >
-          <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="md:text-4xl text-2xl font-bold mb-8 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
             New Transaction
           </h1>
 
@@ -114,12 +123,12 @@ const Transactions = () => {
             {message && (
               <div
                 className={`p-4 rounded-lg ${
-                  message.startsWith('Error')
+                  message.startsWith('Error') || message.includes('invalid')
                     ? 'bg-red-400/10 border-red-400/30'
                     : 'bg-emerald-400/10 border-emerald-400/30'
                 }`}
               >
-                <p className={message.startsWith('Error') ? 'text-red-400' : 'text-emerald-400'}>
+                <p className={message.startsWith('Error') || message.includes('invalid') ? 'text-red-400' : 'text-emerald-400'}>
                   {message}
                 </p>
               </div>
