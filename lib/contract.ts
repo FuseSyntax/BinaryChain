@@ -41,7 +41,7 @@ export class TimeLockContract implements SmartContract {
       this.unlockTime = unlockTime;
     }
   
-    execute(_transaction: Transaction): boolean {
+    execute(): boolean {
       return Date.now() >= this.unlockTime;
     }
   }

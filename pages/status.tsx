@@ -14,7 +14,11 @@ import {
 interface Block {
   index: number;
   timestamp: number;
-  transactions: any[];
+  transactions: {
+    fromAddress: string | null;
+    toAddress: string;
+    amount: number;
+  }[];
   previousHash: string;
   hash: string;
   nonce: number;

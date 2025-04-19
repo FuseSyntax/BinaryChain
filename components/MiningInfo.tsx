@@ -1,7 +1,12 @@
 // components/MiningInfo.tsx
 import { CpuChipIcon, QueueListIcon } from '@heroicons/react/24/outline';
 
-const MiningInfo = ({ difficulty, pendingTransactionsCount }) => {
+interface MiningInfoProps {
+  difficulty: number;
+  pendingTransactionsCount: number;
+}
+
+const MiningInfo: React.FC<MiningInfoProps> = ({ difficulty, pendingTransactionsCount }) => {
   return (
     <div className="bg-gradient-to-br from-gray-800 to-gray-850 p-6 rounded-xl border border-gray-700">
       <h3 className="text-lg font-semibold text-white mb-4">Mining Status</h3>

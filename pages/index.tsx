@@ -42,9 +42,13 @@ export default function HomePage() {
         const tx = new Transaction(senderWallet.publicKey, 'Bob', amount);
         senderWallet.signTransaction(tx);
         blockchainInstance.addTransaction(tx);
-        setChain({ ...blockchainInstance });
+        setChain(blockchainInstance);
       } catch (error) {
-        console.error('Transaction failed:', error.message);
+        if (error instanceof Error) {
+          console.error('Transaction failed:', error.message);
+        } else {
+          console.error('Transaction failed:', error);
+        }
       }
     }, 5000);
     return () => clearInterval(interval);

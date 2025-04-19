@@ -29,8 +29,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
       // Return success response
       res.status(200).json({ message: 'Transaction successfully signed and added.', transaction: tx });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      res.status(400).json({ error: errorMessage });
     }
   } else {
     res.status(405).json({ error: 'Method not allowed. Please use POST.' });

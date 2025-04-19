@@ -36,6 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
       res.status(200).json({ message: 'Block mined successfully' });
     } catch (error) {
+      console.error('Error mining block:', error);
       res.status(500).json({ error: 'Failed to mine block' });
     }
   } else {

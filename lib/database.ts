@@ -2,7 +2,23 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-export async function saveBlock(block: any) {
+interface Transaction {
+  fromAddress: string;
+  toAddress: string;
+  amount: number;
+  signature: string;
+}
+
+interface Block {
+  index: number;
+  timestamp: string | Date;
+  hash: string;
+  previousHash: string;
+  nonce: number;
+  transactions: Array<Transaction>;
+}
+
+export async function saveBlock(block: Block) {
   return prisma.block.create({
     data: {
       index: block.index,
@@ -11,7 +27,7 @@ export async function saveBlock(block: any) {
       previousHash: block.previousHash,
       nonce: block.nonce,
       transactions: {
-        create: block.transactions.map((tx: any) => ({
+        create: block.transactions.map((tx: Transaction) => ({
           fromAddress: tx.fromAddress,
           toAddress: tx.toAddress,
           amount: tx.amount,
