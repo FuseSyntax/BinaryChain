@@ -31,6 +31,7 @@ const stagger = {
 
 export default function HomePage() {
   const [chain, setChain] = useState<Blockchain | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { scrollY } = useScroll();
   const heroScale = useTransform(scrollY, [0, 300], [1, 0.95]);
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.7]);
@@ -41,8 +42,10 @@ export default function HomePage() {
       try {
         const blockchain = await getBlockchainInstance();
         setChain(blockchain);
+        setError(null);
       } catch (error) {
         console.error('Error initializing blockchain:', error);
+        setError('Failed to load blockchain. Please try again later.');
       }
     };
     initBlockchain();
@@ -75,7 +78,11 @@ export default function HomePage() {
   ];
 
   if (!chain) {
-    return <div className="bg-gray-950 text-white min-h-screen flex items-center justify-center">Loading blockchain...</div>;
+    return (
+      <div className="bg-gray-950 text-white min-h-screen flex items-center justify-center">
+        {error ? <p className="text-red-400">{error}</p> : 'Loading blockchain...'}
+      </div>
+    );
   }
 
   return (
