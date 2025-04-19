@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { blockchainInstance } from '../../../lib/blockchainInstance';
+import { getBlockchainInstance } from '../../../lib/blockchainInstance';
 import { Block } from '../../../lib/block';
 import { prisma } from '../../../lib/prisma';
 
@@ -15,6 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     newBlock.hash = newBlockData.hash;
     newBlock.nonce = newBlockData.nonce;
 
+    const blockchainInstance = await getBlockchainInstance();
     const accepted = blockchainInstance.receiveBlock(newBlock);
     if (accepted) {
       await prisma.block.create({

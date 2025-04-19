@@ -13,7 +13,8 @@ import {
 import BlockchainVisualization from '../components/BlockchainVisualization';
 import { Wallet } from '../lib/wallet';
 import { Transaction } from '../lib/transaction';
-import { blockchainInstance } from '../lib/blockchainInstance';
+import { getBlockchainInstance } from '../lib/blockchainInstance';
+import { Blockchain } from '../lib/blockchain';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -29,28 +30,38 @@ const stagger = {
 };
 
 export default function HomePage() {
-  const [chain, setChain] = useState(blockchainInstance);
+  const [chain, setChain] = useState<Blockchain | null>(null);
   const { scrollY } = useScroll();
   const heroScale = useTransform(scrollY, [0, 300], [1, 0.95]);
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.7]);
 
   useEffect(() => {
-    const senderWallet = new Wallet();
-    const interval = setInterval(() => {
+    // Initialize blockchain instance
+    const initBlockchain = async () => {
       try {
+        const blockchain = await getBlockchainInstance();
+        setChain(blockchain);
+      } catch (error) {
+        console.error('Error initializing blockchain:', error);
+      }
+    };
+    initBlockchain();
+
+    // Simulate transaction creation
+    const senderWallet = new Wallet();
+    const interval = setInterval(async () => {
+      try {
+        const blockchain = await getBlockchainInstance();
         const amount = parseFloat((0.01 + Math.random() * 9.99).toFixed(2));
         const tx = new Transaction(senderWallet.publicKey, 'Bob', amount);
         senderWallet.signTransaction(tx);
-        blockchainInstance.addTransaction(tx);
-        setChain(blockchainInstance);
+        blockchain.addTransaction(tx);
+        setChain(blockchain);
       } catch (error) {
-        if (error instanceof Error) {
-          console.error('Transaction failed:', error.message);
-        } else {
-          console.error('Transaction failed:', error);
-        }
+        console.error('Transaction failed:', error instanceof Error ? error.message : error);
       }
     }, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -62,6 +73,10 @@ export default function HomePage() {
     { title: 'Smart Contracts', href: '/smart-contracts' },
     { title: 'Peer-to-Peer Network', href: '/p2p-network' },
   ];
+
+  if (!chain) {
+    return <div className="bg-gray-950 text-white min-h-screen flex items-center justify-center">Loading blockchain...</div>;
+  }
 
   return (
     <div className="bg-gray-950 text-white">
@@ -178,8 +193,8 @@ export default function HomePage() {
         </div>
       </section>
 
-            {/* Live Visualization Dashboard */}
-            <section className="py-24 px-4 bg-gray-900">
+      {/* Live Visualization Dashboard */}
+      <section className="py-24 px-4 bg-gray-900">
         <div className="max-w-6xl mx-auto">
           <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-4xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-400">
             Real-Time Blockchain Dashboard
@@ -208,7 +223,6 @@ export default function HomePage() {
         </div>
       </section>
 
-
       {/* Core Features Grid */}
       <section className="py-24 px-4 bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-gray-950 to-gray-900">
         <div className="max-w-6xl mx-auto">
@@ -230,8 +244,6 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
-
-
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '../../../lib/prisma';
-import { blockchainInstance } from '../../../lib/blockchainInstance';
+import { getBlockchainInstance } from '../../../lib/blockchainInstance';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
@@ -21,8 +21,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Mining reward address required' });
     }
     try {
-      await blockchainInstance.minePendingTransactions(miningRewardAddress);
-      const newBlock = blockchainInstance.getLatestBlock();
+      const blockchain = await getBlockchainInstance();
+      await blockchain.minePendingTransactions(miningRewardAddress);
+      const newBlock = blockchain.getLatestBlock();
       await prisma.block.create({
         data: {
           index: newBlock.index,
