@@ -1,49 +1,49 @@
-binarychain/
-├── components/
-│   ├── Footer.tsx
-│   ├── BlockchainVisualization.tsx
-│   ├── Header.tsx
-│   ├── Layout.tsx
-│   ├── MiningInfo.tsx
-│   ├── TransactionList.tsx
-│   ├── ConceptCard.tsx
-│   └── VisualBreakdown.tsx
-├── lib/
-│   ├── blockchain.ts
-│   ├── block.ts
-│   ├── cryptoUtil.ts
-│   ├── transaction.ts
-│   ├── wallet.ts
-│   ├── blockchainInstance.ts
-│   ├── walletPersistence.ts
-│   ├── prisma.ts
-│   └── contract.ts
-├── pages/
-│   ├── api/
-│   │   ├── blockchain/
-│   │   │   ├── index.ts
-│   │   │   └── receive.ts
-│   │   ├── peers/
-│   │   │   ├── add.ts
-│   │   │   └── list.ts
-│   │   └── transaction.ts
-│   ├── index.tsx
-│   ├── status.tsx
-│   ├── mine.tsx
-│   ├── transactions.tsx
-│   ├── smart-contracts.tsx
-│   ├── privacy.tsx
-│   ├── about.tsx
-│   ├── p2p-network.tsx
-│   ├── immutable-records.tsx
-│   ├── distributed-ledger.tsx
-│   ├── cryptographic.tsx
-│   ├── consensus-algorithm.tsx
-│   ├── peers.tsx
-│   ├── concepts.tsx
-│   └── _app.tsx
-├── prisma/
-│   └── schema.prisma
-├── .env
-├── package.json
-└── README.md
+    binarychain/
+    ├── components/
+    │   ├── Footer.tsx
+    │   ├── BlockchainVisualization.tsx
+    │   ├── Header.tsx
+    │   ├── Layout.tsx
+    │   ├── MiningInfo.tsx
+    │   ├── TransactionList.tsx
+    │   ├── ConceptCard.tsx
+    │   └── VisualBreakdown.tsx
+    ├── lib/
+    │   ├── blockchain.ts
+    │   ├── block.ts
+    │   ├── cryptoUtil.ts
+    │   ├── transaction.ts
+    │   ├── wallet.ts
+    │   ├── blockchainInstance.ts
+    │   ├── walletPersistence.ts
+    │   ├── prisma.ts
+    │   └── contract.ts
+    ├── pages/
+    │   ├── api/
+    │   │   ├── blockchain/
+    │   │   │   ├── index.ts
+    │   │   │   └── receive.ts
+    │   │   ├── peers/
+    │   │   │   ├── add.ts
+    │   │   │   └── list.ts
+    │   │   └── transaction.ts
+    │   ├── index.tsx
+    │   ├── status.tsx
+    │   ├── mine.tsx
+    │   ├── transactions.tsx
+    │   ├── smart-contracts.tsx
+    │   ├── privacy.tsx
+    │   ├── about.tsx
+    │   ├── p2p-network.tsx
+    │   ├── immutable-records.tsx
+    │   ├── distributed-ledger.tsx
+    │   ├── cryptographic.tsx
+    │   ├── consensus-algorithm.tsx
+    │   ├── peers.tsx
+    │   ├── concepts.tsx
+    │   └── _app.tsx
+    ├── prisma/
+    │   └── schema.prisma
+    ├── .env
+    ├── package.json
+    └── README.md

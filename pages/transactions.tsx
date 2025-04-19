@@ -142,7 +142,7 @@ const Transactions = () => {
               disabled={loading || !wallet}
               className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl transition-all \${
                 !loading && wallet
-                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                  ? 'bg-emerald-600 cursor-pointer bg-emerald-500 text-white'
                   : 'bg-gray-600 cursor-not-allowed text-gray-400'
               }`}
             >
@@ -159,7 +159,7 @@ const Transactions = () => {
                     : 'bg-emerald-400/10 border-emerald-400/30 text-emerald-400'
                 }`}
               >
-                <p>{message}</p>
+                <p className='text-emerald-500'>{message}</p>
               </div>
             )}
           </div>
@@ -174,9 +174,9 @@ const Transactions = () => {
             <ul className="space-y-4">
               {pending.map((tx, idx) => (
                 <li key={idx} className="p-4 bg-gray-700 rounded-lg">
-                  <p>From: {tx.fromAddress}</p>
-                  <p>To: {tx.toAddress}</p>
-                  <p>Amount: {tx.amount}</p>
+                  <p className='overflow-hidden'>From: {tx.fromAddress}</p>
+                  <p className='overflow-hidden'>To: {tx.toAddress}</p>
+                  <p className='overflow-hidden'>Amount: {tx.amount}</p>
                 </li>
               ))}
             </ul>

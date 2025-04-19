@@ -1,4 +1,3 @@
-// prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -10,22 +9,20 @@ generator client {
 
 model Block {
   id           Int           @id @default(autoincrement())
-  index        Int
+  index        Int           @unique
   timestamp    DateTime      @default(now())
   hash         String
   previousHash String
   nonce        Int
-  // Each Block can have many Transactions.
   transactions Transaction[]
 }
 
 model Transaction {
   id          Int      @id @default(autoincrement())
-  fromAddress String?  // Nullable because a mining reward has a null fromAddress.
+  fromAddress String?
   toAddress   String
   amount      Float
   signature   String?
-  // Optional relation field when a transaction is part of a block.
   block       Block?   @relation(fields: [blockId], references: [id])
   blockId     Int?
 }

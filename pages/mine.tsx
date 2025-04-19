@@ -1,3 +1,4 @@
+//pages/mine.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -67,8 +68,8 @@ const Mine = () => {
               disabled={!wallet || loading}
               className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl transition-all \${
                 wallet && !loading
-                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                  : 'bg-gray-600 cursor-not-allowed text-gray-400'
+                  ? 'bg-emerald-600 cursor-pointer bg-emerald-500 text-white'
+                  : 'bg-gray-600 cursor-not-allowed  text-gray-400'
               }`}
             >
               <CpuChipIcon className="w-5 h-5" />

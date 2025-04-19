@@ -1,6 +1,7 @@
 import { Block } from './block';
 import { Transaction } from './transaction';
 import { SmartContract, SimpleContract } from './contract';
+import { prisma } from './prisma';
 
 export class Blockchain {
   public chain: Block[];
@@ -26,6 +27,13 @@ export class Blockchain {
 
   getLatestBlock(): Block {
     return this.chain[this.chain.length - 1];
+  }
+
+  async getNextIndex(): Promise<number> {
+    const latestBlock = await prisma.block.findFirst({
+      orderBy: { index: 'desc' },
+    });
+    return latestBlock ? latestBlock.index + 1 : 1; // Start at 1 if no blocks (genesis is 0)
   }
 
   addPeer(peerUrl: string): void {
@@ -95,25 +103,26 @@ export class Blockchain {
     }
   }
 
-  minePendingTransactions(miningRewardAddress: string): void {
+  async minePendingTransactions(miningRewardAddress: string): Promise<void> {
     const rewardTx = new Transaction(null, miningRewardAddress, this.miningReward);
     this.pendingTransactions.push(rewardTx);
 
+    const nextIndex = await this.getNextIndex();
     const block = new Block(
-      this.chain.length,
+      nextIndex,
       Date.now(),
       this.pendingTransactions,
       this.getLatestBlock().hash
     );
 
     block.mineBlock(this.difficulty);
-    console.log('Block successfully mined!');
+    console.log(`Block successfully mined! Index: ${block.index}`);
 
     this.chain.push(block);
     this.pendingTransactions = [];
 
-    this.broadcastBlock(block);
-    this.syncChain();
+    await this.broadcastBlock(block);
+    await this.syncChain();
   }
 
   addTransaction(transaction: Transaction): void {
@@ -155,7 +164,6 @@ export class Blockchain {
     }
     return balance;
   }
-  
 
   receiveBlock(newBlock: Block): boolean {
     const latestBlock = this.getLatestBlock();
