@@ -1,5 +1,6 @@
 import { ec } from './cryptoUtil';
 import { Transaction } from './transaction';
+import elliptic from 'elliptic';
 
 export class Wallet {
   public keyPair: elliptic.ec.KeyPair;

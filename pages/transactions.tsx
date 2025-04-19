@@ -1,79 +1,111 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
 import { ArrowUpIcon, WalletIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import { Transaction } from '../lib/transaction';
 import { getOrCreateWallet } from '../lib/walletPersistence';
 
 const Transactions = () => {
-  const [wallet] = useState(() => getOrCreateWallet());
+  const [wallet, setWallet] = useState<{ publicKey: string; signTransaction: (tx: Transaction) => void } | null>(null);
   const [toAddress, setToAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [message, setMessage] = useState('');
-  const [pendingTransactions, setPendingTransactions] = useState<Transaction[]>([]);
+  const [pending, setPending] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(false);
 
+  // Load wallet from localStorage on client only
   useEffect(() => {
-    const fetchPendingTransactions = async () => {
-      const res = await fetch('/api/transaction');
-      const data = await res.json();
-      setPendingTransactions(data.transactions || []);
+    const w = getOrCreateWallet();
+    setWallet(w);
+  }, []);
+
+  // Fetch pending transactions
+  useEffect(() => {
+    const fetchPending = async () => {
+      try {
+        const res = await fetch('/api/transaction');
+        const data = await res.json();
+        setPending(data.transactions || []);
+      } catch {
+        setPending([]);
+      }
     };
-    fetchPendingTransactions();
+    fetchPending();
   }, []);
 
   const submitTransaction = async () => {
+    if (!wallet) {
+      setMessage('Wallet not loaded yet');
+      return;
+    }
+    if (!toAddress || !amount || parseFloat(amount) <= 0) {
+      setMessage('Please provide a valid recipient address and amount greater than 0');
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
+
     const tx = new Transaction(wallet.publicKey, toAddress, parseFloat(amount));
     wallet.signTransaction(tx);
 
-    const res = await fetch('/api/transaction', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fromAddress: tx.fromAddress,
-        toAddress: tx.toAddress,
-        amount: tx.amount,
-        signature: tx.signature,
-      }),
-    });
+    try {
+      const res = await fetch('/api/transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromAddress: tx.fromAddress,
+          toAddress: tx.toAddress,
+          amount: tx.amount,
+          signature: tx.signature,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Transaction failed');
 
-    const data = await res.json();
-    if (!res.ok) {
-      setMessage(`Error: ${data.error}`);
-    } else {
       setMessage('Transaction added to mempool!');
-      const res = await fetch('/api/transaction');
-      const updatedData = await res.json();
-      setPendingTransactions(updatedData.transactions || []);
+      // Refresh pending list
+      const updated = await fetch('/api/transaction');
+      const updatedData = await updated.json();
+      setPending(updatedData.transactions || []);
+    } catch (err) {
+      setMessage(`Error: ${err instanceof Error ? err.message : 'An unknown error occurred'}`);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
+    <div className="md:min-h-screen bg-gray-900 md:p-8 md:mt-20 mx-4 mt-24 mb-10">
       <div className="max-w-4xl mx-auto">
+        {/* New Transaction Form */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="bg-gray-800 rounded-2xl p-8 border border-gray-700 shadow-2xl mb-8"
+          className="bg-gray-800 rounded-2xl md:p-8 p-4 border border-gray-700 shadow-2xl mb-8"
         >
-          <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="md:text-4xl text-2xl font-bold mb-8 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
             New Transaction
           </h1>
 
           <div className="space-y-6">
+            {/* Sender Address */}
             <div>
               <label className="text-gray-300 mb-2 block">Sender Address</label>
               <div className="flex items-center gap-2 bg-gray-700 rounded-lg p-3 border border-gray-600">
                 <WalletIcon className="w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  value={wallet.publicKey}
+                  value={wallet?.publicKey || ''}
                   readOnly
-                  className="bg-transparent w-full text-gray-200"
+                  placeholder="Loading wallet..."
+                  className="bg-transparent w-full text-gray-200 placeholder-gray-500"
                 />
               </div>
             </div>
 
+            {/* Recipient Address */}
             <div>
               <label className="text-gray-300 mb-2 block">Recipient Address</label>
               <div className="flex items-center gap-2 bg-gray-700 rounded-lg p-3 border border-gray-600">
@@ -82,12 +114,13 @@ const Transactions = () => {
                   type="text"
                   value={toAddress}
                   onChange={(e) => setToAddress(e.target.value)}
-                  className="bg-transparent w-full text-gray-200 placeholder-gray-500 focus:outline-none"
                   placeholder="0x..."
+                  className="bg-transparent w-full text-gray-200 placeholder-gray-500 focus:outline-none"
                 />
               </div>
             </div>
 
+            {/* Amount */}
             <div>
               <label className="text-gray-300 mb-2 block">Amount</label>
               <div className="flex items-center gap-2 bg-gray-700 rounded-lg p-3 border border-gray-600">
@@ -96,48 +129,54 @@ const Transactions = () => {
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="bg-transparent w-full text-gray-200 placeholder-gray-500 focus:outline-none"
                   placeholder="0.00"
+                  className="bg-transparent w-full text-gray-200 placeholder-gray-500 focus:outline-none"
                 />
               </div>
             </div>
 
+            {/* Submit Button */}
             <motion.button
               onClick={submitTransaction}
-              whileHover={{ scale: 1.05 }}
-              className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all"
+              whileHover={{ scale: !loading ? 1.05 : 1 }}
+              disabled={loading || !wallet}
+              className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl transition-all \${
+                !loading && wallet
+                  ? 'bg-emerald-600 cursor-pointer bg-emerald-500 text-white'
+                  : 'bg-gray-600 cursor-not-allowed text-gray-400'
+              }`}
             >
               <ArrowUpIcon className="w-5 h-5" />
-              Broadcast Transaction
+              {loading ? 'Sending...' : 'Broadcast Transaction'}
             </motion.button>
 
+            {/* Feedback Message */}
             {message && (
               <div
-                className={`p-4 rounded-lg ${
+                className={`p-4 rounded-lg \${
                   message.startsWith('Error')
-                    ? 'bg-red-400/10 border-red-400/30'
-                    : 'bg-emerald-400/10 border-emerald-400/30'
+                    ? 'bg-red-400/10 border-red-400/30 text-red-400'
+                    : 'bg-emerald-400/10 border-emerald-400/30 text-emerald-400'
                 }`}
               >
-                <p className={message.startsWith('Error') ? 'text-red-400' : 'text-emerald-400'}>
-                  {message}
-                </p>
+                <p className='text-emerald-500'>{message}</p>
               </div>
             )}
           </div>
         </motion.div>
 
+        {/* Pending Transactions List */}
         <div>
           <h2 className="text-2xl font-bold mb-4 text-white">Pending Transactions</h2>
-          {pendingTransactions.length === 0 ? (
+          {pending.length === 0 ? (
             <p className="text-gray-400">No pending transactions</p>
           ) : (
             <ul className="space-y-4">
-              {pendingTransactions.map((tx, index) => (
-                <li key={index} className="p-4 bg-gray-700 rounded-lg">
-                  <p>From: {tx.fromAddress}</p>
-                  <p>To: {tx.toAddress}</p>
-                  <p>Amount: {tx.amount}</p>
+              {pending.map((tx, idx) => (
+                <li key={idx} className="p-4 bg-gray-700 rounded-lg">
+                  <p className='overflow-hidden'>From: {tx.fromAddress}</p>
+                  <p className='overflow-hidden'>To: {tx.toAddress}</p>
+                  <p className='overflow-hidden'>Amount: {tx.amount}</p>
                 </li>
               ))}
             </ul>

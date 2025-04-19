@@ -37,14 +37,14 @@ const Peers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
+    <div className="md:min-h-screen bg-gray-900 md:p-8 md:mt-20 mx-4 mt-24 mb-10">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="bg-gray-800 rounded-2xl p-8 border border-gray-700 shadow-2xl mb-8"
+          className="bg-gray-800 rounded-2xl md:p-8 p-4 border border-gray-700 shadow-2xl mb-8"
         >
-          <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="md:text-4xl text-2xl font-bold mb-8 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
             Manage Peers
           </h1>
 

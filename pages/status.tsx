@@ -1,4 +1,5 @@
-// pages/status.tsx
+'use client';
+
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { 
@@ -12,9 +13,16 @@ import {
 } from '@heroicons/react/24/outline';
 
 interface Block {
+  id: number;
   index: number;
-  timestamp: number;
-  transactions: any[];
+  timestamp: string;
+  transactions: {
+    id: number;
+    fromAddress: string | null;
+    toAddress: string;
+    amount: number;
+    signature: string | null;
+  }[];
   previousHash: string;
   hash: string;
   nonce: number;
@@ -24,15 +32,25 @@ const Status = () => {
   const [chain, setChain] = useState<Block[]>([]);
 
   const fetchChain = async () => {
-    const res = await fetch('/api/blockchain');
-    const data = await res.json();
-    setChain(data.chain);
+    try {
+      const res = await fetch(`/api/blockchain?ts=${Date.now()}`);
+      if (!res.ok) throw new Error('Failed to fetch chain');
+      const data = await res.json();
+      console.log('Fetched chain:', data.chain);
+      setChain(data.chain);
+    } catch (error) {
+      console.error('Error fetching chain:', error);
+    }
   };
 
-  useEffect(() => { fetchChain(); }, []);
+  useEffect(() => {
+    fetchChain();
+    const interval = setInterval(fetchChain, 10000); // Refresh every 10 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8">
+    <div className="min-h-screen bg-gray-900 md:p-8 md:mt-20 mt-16 mb-10">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0 }}

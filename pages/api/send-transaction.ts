@@ -2,9 +2,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Wallet } from '../../lib/wallet';
 import { Transaction } from '../../lib/transaction';
-import { blockchainInstance } from '../../lib/blockchainInstance';
+import { getBlockchainInstance } from '../../lib/blockchainInstance';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     // Expecting to receive "toAddress" and "amount" from the request body
     const { toAddress, amount } = req.body;
@@ -25,12 +25,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       senderWallet.signTransaction(tx);
 
       // Add the signed transaction to the blockchain instance
-      blockchainInstance.addTransaction(tx);
+      const blockchain = await getBlockchainInstance();
+      blockchain.addTransaction(tx);
 
       // Return success response
       res.status(200).json({ message: 'Transaction successfully signed and added.', transaction: tx });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      res.status(400).json({ error: errorMessage });
     }
   } else {
     res.status(405).json({ error: 'Method not allowed. Please use POST.' });
